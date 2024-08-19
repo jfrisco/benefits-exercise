@@ -16,9 +16,13 @@ public interface PayrollService {
 
     List<EmployeePaycheck> generateEmployeePaychecks(Integer payrollId);
 
-    List<EmployeePaycheck> getEmployeePaychecksByPayrollId(Integer payrollId);
+    EmployeePaycheck generateEmployeePayroll(Integer employeeId);
 
     PayrollPeriod save(PayrollPeriod newPayrollPeriod);
 
     EmployeePaycheck getEmployeePayPreview(Integer benefitId, Integer employeeId);
+
+    List<EmployeePaycheck> generateEmployeePayrollByBenefitId(Integer benefitId);
+
+    List<EmployeePaycheck> getEmployeePaychecksByPayrollId(Integer payrollId);
 }

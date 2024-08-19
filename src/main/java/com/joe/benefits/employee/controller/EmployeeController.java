@@ -1,9 +1,12 @@
 package com.joe.benefits.employee.controller;
 
+import com.joe.benefits.employee.events.EmployeeCreatedEvent;
+import com.joe.benefits.employee.events.EmployeeUpdatedEvent;
 import com.joe.benefits.employee.exception.NotFoundException;
 import com.joe.benefits.employee.model.Employee;
 import com.joe.benefits.employee.repository.EmployeeRepository;
 import io.swagger.v3.oas.annotations.Operation;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -16,9 +19,12 @@ import java.util.Optional;
 public class EmployeeController {
 
     private final EmployeeRepository employeeRepository;
+    private final ApplicationEventPublisher applicationEventPublisher;
 
-    public EmployeeController(EmployeeRepository employeeRepository) {
+
+    public EmployeeController(EmployeeRepository employeeRepository, ApplicationEventPublisher applicationEventPublisher) {
         this.employeeRepository = employeeRepository;
+        this.applicationEventPublisher = applicationEventPublisher;
     }
 
     @GetMapping("/{id}")
@@ -38,7 +44,9 @@ public class EmployeeController {
     @PostMapping
     @Operation(summary = "Create a new employee")
     public Employee newEmployee(@RequestBody Employee newEmployee) {
-        return employeeRepository.save(newEmployee);
+        Employee saved = employeeRepository.save(newEmployee);
+        applicationEventPublisher.publishEvent(new EmployeeCreatedEvent(saved.getId()));
+        return saved;
     }
 
     @PutMapping("/{id}")
@@ -51,6 +59,7 @@ public class EmployeeController {
             employeeToUpdate.setLastName(updatedEmployee.getFirstName());
             employeeToUpdate.setBenefitId(updatedEmployee.getBenefitId());
             employeeToUpdate.setSalary(updatedEmployee.getSalary());
+            applicationEventPublisher.publishEvent(new EmployeeUpdatedEvent(employeeToUpdate.getId()));
             return employeeRepository.save(employeeToUpdate);
         }
         else{

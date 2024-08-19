@@ -3,6 +3,7 @@
 This is an excercise for a sample benefits application. 
 
 In the essence of time, the code for this specific design is syncronous. 
+As I implemented the initial design, I did start working on an event based structure that I would like to discuss the benefits of as well.
 
 There are also a few things that were omitted in the implementation to bring up before discussing the next steps to improve upon this design.
 
@@ -24,7 +25,7 @@ This would allow for calculation of payrolls on different types of intervals and
 Tests were omitted for the most part with the exception of the most complication logic for this application in the PayrollService that handles calculating employee payroll.
 In a practical scenario unit and integration tests would be built for all non CRUD operations to ensure ease of maintenance and protect ourselves in the future.
 
-Beyond the omission of these, the next step we can take to improve this design is to tackle some of the awkwardness in the current design of how 
+Beyond the omission of these, the next step we can take to improve this design is to tackle some of the awkwardness I encountered while implementing the current design of how 
 an admin will need to invoke an API to generate payroll and then approve it once verified. 
 
 To work around this, we can emit events when an Employee is created or updated or when a Benefit Package is updated. 

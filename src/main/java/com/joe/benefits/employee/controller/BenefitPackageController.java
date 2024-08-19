@@ -1,11 +1,13 @@
 package com.joe.benefits.employee.controller;
 
+import com.joe.benefits.employee.events.BenefitPackageUpdatedEvent;
 import com.joe.benefits.employee.exception.NotFoundException;
 import com.joe.benefits.employee.model.BenefitPackage;
 import com.joe.benefits.employee.model.EmployeePaycheck;
 import com.joe.benefits.employee.repository.BenefitPackageRepository;
 import com.joe.benefits.employee.service.PayrollService;
 import io.swagger.v3.oas.annotations.Operation;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -18,10 +20,12 @@ import java.util.Optional;
 public class BenefitPackageController {
     private final BenefitPackageRepository benefitPackageRepository;
     private final PayrollService payrollService;
+    private final ApplicationEventPublisher applicationEventPublisher;
 
-    public BenefitPackageController(BenefitPackageRepository benefitPackageRepository, PayrollService payrollService) {
+    public BenefitPackageController(BenefitPackageRepository benefitPackageRepository, PayrollService payrollService, ApplicationEventPublisher applicationEventPublisher) {
         this.benefitPackageRepository = benefitPackageRepository;
         this.payrollService = payrollService;
+        this.applicationEventPublisher = applicationEventPublisher;
     }
 
     @GetMapping("/{id}")
@@ -53,6 +57,7 @@ public class BenefitPackageController {
             packageToUpdate.setName(benefitPackage.getName());
             packageToUpdate.setEmployeeDeduction(benefitPackage.getEmployeeDeduction());
             packageToUpdate.setDependentDeduction(benefitPackage.getDependentDeduction());
+            applicationEventPublisher.publishEvent(new BenefitPackageUpdatedEvent(benefitPackage.getId()));
             return benefitPackageRepository.save(packageToUpdate);
         }
         else{

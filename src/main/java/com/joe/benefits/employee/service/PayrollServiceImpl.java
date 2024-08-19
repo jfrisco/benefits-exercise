@@ -63,6 +63,24 @@ public class PayrollServiceImpl implements PayrollService {
         return employeePaycheckRepository.saveAll(employeePaychecks);
     }
 
+    @Override
+    public EmployeePaycheck generateEmployeePayroll(Integer employeeId) {
+        // Get Current payroll
+        Integer payroll = payrollPeriodRepository.findCurrentPayroll();
+        List<EmployeePaycheck> employeePaychecks = new ArrayList<>();
+
+        // Get Employee And Benefit Information
+        Optional<Employee> employeesWithBenefit = employeeRepository.findById(employeeId);
+        if (employeesWithBenefit.isEmpty()) {
+            throw new NotFoundException("Employee not found");
+        }
+
+        // Save Employee Paycheck
+        List<BenefitDiscount> benefitDiscountRepositoryByIsActive = benefitDiscountRepository.findByIsActive(true);
+        EmployeePaycheck employeePaycheck = generateEmployeePaycheck(employeesWithBenefit.get(), employeesWithBenefit.get().getBenefitPackage(), benefitDiscountRepositoryByIsActive, payroll);
+        return employeePaycheckRepository.save(employeePaycheck);
+    }
+
     @Transactional
     public EmployeePaycheck getEmployeePayPreview(Integer benefitId, Integer employeeId){
         Optional<Employee> employees = employeeRepository.findById(employeeId);
@@ -76,6 +94,30 @@ public class PayrollServiceImpl implements PayrollService {
         List<BenefitDiscount> benefitDiscountRepositoryByIsActive = benefitDiscountRepository.findByIsActive(true);
 
         return generateEmployeePaycheck(employees.get(), benefitPackage.get(), benefitDiscountRepositoryByIsActive, benefitId);
+    }
+
+    @Override
+    public List<EmployeePaycheck> generateEmployeePayrollByBenefitId(Integer benefitId) {
+        // Get Current payroll
+        Integer payroll = payrollPeriodRepository.findCurrentPayroll();
+        List<EmployeePaycheck> employeePaychecks = new ArrayList<>();
+
+        // Get Employee And Benefit Information
+        Optional<BenefitPackage> benefitPackage = benefitPackageRepository.findById(benefitId);
+        if (benefitPackage.isEmpty()) {
+            throw new NotFoundException("Unable to find benefit with id: " + benefitId);
+        }
+
+        List<Employee> employeesWithBenefit = employeeRepository.findByBenefitId(benefitId);
+
+        // Save Employee Paycheck
+        List<BenefitDiscount> benefitDiscountRepositoryByIsActive = benefitDiscountRepository.findByIsActive(true);
+        employeesWithBenefit.stream().forEach(employee -> {
+            EmployeePaycheck employeePaycheck = generateEmployeePaycheck(employee, employee.getBenefitPackage(), benefitDiscountRepositoryByIsActive, payroll);
+            employeePaychecks.add(employeePaycheck);
+        });
+
+        return employeePaycheckRepository.saveAll(employeePaychecks);
     }
 
     @Override

@@ -2,7 +2,6 @@ package com.joe.benefits.employee.controller;
 
 import com.joe.benefits.employee.exception.NotFoundException;
 import com.joe.benefits.employee.model.BenefitPackage;
-import com.joe.benefits.employee.model.Dependent;
 import com.joe.benefits.employee.repository.BenefitPackageRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;

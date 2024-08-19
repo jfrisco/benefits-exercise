@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Data;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
 
@@ -23,7 +24,7 @@ public class Employee {
     @Column(name ="DATE_OF_BIRTH")
     private Instant dateOfBirth;
     @Column(name ="SALARY")
-    private Double salary;
+    private BigDecimal salary;
     @ManyToOne
     @JoinColumn(name = "BENEFIT_ID", insertable = false, updatable = false)
     private BenefitPackage benefitPackage;

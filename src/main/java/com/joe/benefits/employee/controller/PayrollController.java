@@ -1,11 +1,10 @@
 package com.joe.benefits.employee.controller;
 
 import com.joe.benefits.employee.exception.NotFoundException;
-import com.joe.benefits.employee.model.Dependent;
 import com.joe.benefits.employee.model.EmployeePaycheck;
 import com.joe.benefits.employee.model.PayrollPeriod;
-import com.joe.benefits.employee.repository.PayrollPeriodRepository;
 import com.joe.benefits.employee.service.PayrollService;
+import com.joe.benefits.employee.service.PayrollServiceImpl;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -18,7 +17,7 @@ import java.util.List;
 public class PayrollController {
     private final PayrollService payrollService;
 
-    public PayrollController(PayrollService payrollService) {
+    public PayrollController(PayrollServiceImpl payrollService) {
         this.payrollService = payrollService;
     }
 
@@ -34,15 +33,13 @@ public class PayrollController {
         return payrollService.findAll(PageRequest.of(offset, pageSize, Sort.by(sortBy)));
     }
 
-    //TODO: this needs a better home
     @PostMapping("/{id}/process")
     public void processPayroll(@PathVariable Integer payrollPeriod){
         payrollService.processPayroll(payrollPeriod);
     }
 
-    //TODO: this needs a better home
-    @PostMapping("/{id}/preview")
-    public List<EmployeePaycheck> previewPayroll(@PathVariable Integer payrollPeriod){
+    @PostMapping("/{id}/generate")
+    public List<EmployeePaycheck> generatePayroll(@PathVariable Integer payrollPeriod){
         return payrollService.generateEmployeePaychecks(payrollPeriod);
     }
 }

@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.Data;
 import org.hibernate.type.YesNoConverter;
 
+import java.math.BigDecimal;
+
 @Data
 @Entity
 @Table(name = "BENEFIT_DISCOUNT")
@@ -17,8 +19,8 @@ public class BenefitDiscount {
     @Column(name = "target")
     private String target;
 
-    @Column(name = "DISCOUNT_AMOUNT")
-    private Double discountAmount;
+    @Column(name = "DISCOUNT_PERCENTAGE")
+    private Integer discountPercentage;
 
     @Column(name = "ACTIVE")
     @Convert(converter= YesNoConverter.class)

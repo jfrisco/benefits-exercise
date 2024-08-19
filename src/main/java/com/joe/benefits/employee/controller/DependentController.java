@@ -1,9 +1,11 @@
 package com.joe.benefits.employee.controller;
 
+import com.joe.benefits.employee.events.EmployeeUpdatedEvent;
 import com.joe.benefits.employee.exception.NotFoundException;
 import com.joe.benefits.employee.model.Dependent;
 import com.joe.benefits.employee.repository.DependentRepository;
 import io.swagger.v3.oas.annotations.Operation;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -16,9 +18,11 @@ import java.util.Optional;
 public class DependentController {
 
     private final DependentRepository dependentRepository;
+    private final ApplicationEventPublisher applicationEventPublisher;
 
-    public DependentController(DependentRepository dependentRepository) {
+    public DependentController(DependentRepository dependentRepository, ApplicationEventPublisher applicationEventPublisher) {
         this.dependentRepository = dependentRepository;
+        this.applicationEventPublisher = applicationEventPublisher;
     }
 
     @GetMapping("/{id}")
@@ -38,7 +42,9 @@ public class DependentController {
     @PostMapping
     @Operation(summary = "Create a new dependent")
     public Dependent newDependent(@RequestBody Dependent dependent) {
-        return dependentRepository.save(dependent);
+        Dependent saved = dependentRepository.save(dependent);
+        applicationEventPublisher.publishEvent(new EmployeeUpdatedEvent(saved.getEmployeeId()));
+        return saved;
     }
 
     @PutMapping("/{id}")
@@ -49,6 +55,7 @@ public class DependentController {
             Dependent dependentToUpdate = dependentById.get();
             dependentToUpdate.setFirstName(dependent.getFirstName());
             dependentToUpdate.setLastName(dependent.getLastName());
+            applicationEventPublisher.publishEvent(new EmployeeUpdatedEvent(dependentToUpdate.getEmployeeId()));
             return dependentRepository.save(dependent);
         }
         else{

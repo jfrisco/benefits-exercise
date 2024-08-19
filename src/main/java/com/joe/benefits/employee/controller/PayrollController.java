@@ -49,9 +49,9 @@ public class PayrollController {
     }
 
     @PostMapping("/{id}/preview-payroll")
-    @Operation(summary = "Return employee payroll for a given period. This will set payroll for given period in a pending state")
+    @Operation(summary = "Return employee payroll for a given period. This will set payroll for given period in a pending state. (This would not be necessary in event driven route)")
     public List<EmployeePaycheck> generatePayroll(@PathVariable Integer id){
-        return payrollService.generateEmployeePaychecks(id);
+        return payrollService.generateEmployeePaychecksByPayrollId(id);
     }
 
     @PostMapping("/{id}/process-payroll")

@@ -31,6 +31,7 @@ an admin will need to invoke an API to generate payroll and then approve it once
 To work around this, we can emit events when an Employee is created or updated or when a Benefit Package is updated. 
 We can then listen into these events to calculate Payroll as these changes are occurring rather than doing a large one time calculation as this would not scale well as payroll size increases.
 An admin would then be able to view the current state of payroll, make any adjustments necessary and verify the numbers.
+This approach is especially helpful as the payroll data will be eventually consistent at the time of payroll verification.
 
 
 Swagger URL:

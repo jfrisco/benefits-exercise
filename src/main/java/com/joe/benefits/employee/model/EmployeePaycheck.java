@@ -1,8 +1,10 @@
 package com.joe.benefits.employee.model;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 
@@ -11,6 +13,8 @@ import java.math.BigDecimal;
 @Entity
 @Builder
 @IdClass(EmployeePaycheckId.class)
+@AllArgsConstructor
+@NoArgsConstructor
 public class EmployeePaycheck {
     @Id
     @Column(name = "EMPLOYEE_ID")
@@ -28,18 +32,4 @@ public class EmployeePaycheck {
     @Column(name = "status")
     @Enumerated(EnumType.STRING)
     private PayrollStatus status;
-
-    public EmployeePaycheck() {
-
-    }
-
-
-    public EmployeePaycheck(Integer employeeId, Integer payPeriodId, BenefitPackage benefitPackage, BigDecimal total, BigDecimal salary, PayrollStatus status) {
-        this.employeeId = employeeId;
-        this.payPeriodId = payPeriodId;
-        this.benefitPackage = benefitPackage;
-        this.total = total;
-        this.salary = salary;
-        this.status = status;
-    }
 }

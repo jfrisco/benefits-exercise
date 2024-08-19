@@ -14,7 +14,7 @@ public interface PayrollService {
 
     void processPayroll(Integer payrollId);
 
-    List<EmployeePaycheck> generateEmployeePaychecks(Integer payrollId);
+    List<EmployeePaycheck> generateEmployeePaychecksByPayrollId(Integer payrollId);
 
     EmployeePaycheck generateEmployeePayroll(Integer employeeId);
 

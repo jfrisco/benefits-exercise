@@ -50,7 +50,7 @@ public class PayrollServiceImpl implements PayrollService {
     }
 
     @Transactional
-    public List<EmployeePaycheck> generateEmployeePaychecks(Integer payrollId) {
+    public List<EmployeePaycheck> generateEmployeePaychecksByPayrollId(Integer payrollId) {
         List<EmployeePaycheck> employeePaychecks = new ArrayList<>();
         List<Employee> employees = employeeRepository.findAll();
         List<BenefitDiscount> benefitDiscountRepositoryByIsActive = benefitDiscountRepository.findByIsActive(true);
@@ -87,13 +87,15 @@ public class PayrollServiceImpl implements PayrollService {
         if (employees.isEmpty()) {
             throw new NotFoundException("Unable to find employee with id: " + employeeId);
         }
+        Integer payroll = payrollPeriodRepository.findCurrentPayroll();
+
         Optional<BenefitPackage> benefitPackage = benefitPackageRepository.findById(benefitId);
         if (benefitPackage.isEmpty()) {
             throw new NotFoundException("Unable to find benefit with id: " + benefitId);
         }
         List<BenefitDiscount> benefitDiscountRepositoryByIsActive = benefitDiscountRepository.findByIsActive(true);
 
-        return generateEmployeePaycheck(employees.get(), benefitPackage.get(), benefitDiscountRepositoryByIsActive, benefitId);
+        return generateEmployeePaycheck(employees.get(), benefitPackage.get(), benefitDiscountRepositoryByIsActive, payroll);
     }
 
     @Override

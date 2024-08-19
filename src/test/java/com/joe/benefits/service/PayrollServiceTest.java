@@ -49,7 +49,7 @@ public class PayrollServiceTest {
         BigDecimal expectedTotal = expectedSalary.subtract(expectedDeduction);
 
         // Act
-       service.generateEmployeePaychecks(1);
+       service.generateEmployeePaychecksByPayrollId(1);
 
         // Assert
         Mockito.verify(employeePaycheckRepository).saveAll(employeePaycheckCaptor.capture());
@@ -77,7 +77,7 @@ public class PayrollServiceTest {
 
 
         // Act
-        service.generateEmployeePaychecks(1);
+        service.generateEmployeePaychecksByPayrollId(1);
 
         // Assert
         Mockito.verify(employeePaycheckRepository).saveAll(employeePaycheckCaptor.capture());
@@ -111,7 +111,7 @@ public class PayrollServiceTest {
 
 
         // Act
-        service.generateEmployeePaychecks(1);
+        service.generateEmployeePaychecksByPayrollId(1);
 
         // Assert
         Mockito.verify(employeePaycheckRepository).saveAll(employeePaycheckCaptor.capture());
@@ -149,7 +149,7 @@ public class PayrollServiceTest {
 
 
         // Act
-        service.generateEmployeePaychecks(1);
+        service.generateEmployeePaychecksByPayrollId(1);
 
         // Assert
         Mockito.verify(employeePaycheckRepository).saveAll(employeePaycheckCaptor.capture());

@@ -1,14 +1,13 @@
 package com.joe.benefits.employee.model;
 
 import jakarta.persistence.*;
-import lombok.Builder;
 import lombok.Data;
 
 import java.time.Instant;
 
 @Data
-@Builder
 @Table(name = "PAYROLL_PERIOD")
+@Entity
 public class PayrollPeriod {
     @jakarta.persistence.Id
     @GeneratedValue(strategy = GenerationType.AUTO)

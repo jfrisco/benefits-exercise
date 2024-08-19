@@ -4,7 +4,6 @@ import com.joe.benefits.employee.model.*;
 import com.joe.benefits.employee.repository.BenefitDiscountRepository;
 import com.joe.benefits.employee.repository.EmployeePaycheckRepository;
 import com.joe.benefits.employee.repository.EmployeeRepository;
-import com.joe.benefits.employee.repository.PayrollPeriodRepository;
 import com.joe.benefits.employee.service.PayrollServiceImpl;
 import org.instancio.Instancio;
 import org.junit.Assert;
@@ -22,8 +21,6 @@ import static org.mockito.ArgumentMatchers.anyList;
 @ExtendWith(MockitoExtension.class)
 public class PayrollServiceTest {
 
-    @Mock
-    private PayrollPeriodRepository payrollPeriodRepository;
     @Mock
     private EmployeeRepository employeeRepository;
     @Mock

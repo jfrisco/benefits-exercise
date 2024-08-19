@@ -2,7 +2,9 @@ package com.joe.benefits.employee.controller;
 
 import com.joe.benefits.employee.exception.NotFoundException;
 import com.joe.benefits.employee.model.BenefitPackage;
+import com.joe.benefits.employee.model.EmployeePaycheck;
 import com.joe.benefits.employee.repository.BenefitPackageRepository;
+import com.joe.benefits.employee.service.PayrollService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -14,9 +16,11 @@ import java.util.Optional;
 @RequestMapping("/benefits")
 public class BenefitPackageController {
     private final BenefitPackageRepository benefitPackageRepository;
+    private final PayrollService payrollService;
 
-    public BenefitPackageController(BenefitPackageRepository benefitPackageRepository) {
+    public BenefitPackageController(BenefitPackageRepository benefitPackageRepository, PayrollService payrollService) {
         this.benefitPackageRepository = benefitPackageRepository;
+        this.payrollService = payrollService;
     }
 
     @GetMapping("/{id}")
@@ -49,6 +53,11 @@ public class BenefitPackageController {
         else{
             throw new NotFoundException("Unable to find benefit package with id: " + id);
         }
+    }
+
+    @GetMapping("/{id}/{employeeId}/preview")
+    public EmployeePaycheck getEmployeePaychecksPreview(@PathVariable Integer benefitId, @PathVariable Integer employeeId){
+        return payrollService.getEmployeePayPreview(benefitId, employeeId);
     }
 
     @DeleteMapping("/{id}")

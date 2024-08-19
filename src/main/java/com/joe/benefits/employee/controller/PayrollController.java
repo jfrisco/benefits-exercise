@@ -33,13 +33,24 @@ public class PayrollController {
         return payrollService.findAll(PageRequest.of(offset, pageSize, Sort.by(sortBy)));
     }
 
-    @PostMapping("/{id}/process")
+    @PostMapping
+    public PayrollPeriod newPayrollPeriod(@RequestBody PayrollPeriod newPayrollPeriod) {
+        return payrollService.save(newPayrollPeriod);
+    }
+
+    @GetMapping("/{id}/employee-paychecks")
+    public List<EmployeePaycheck> getEmployeePaychecksForPayroll(@PathVariable Integer id){
+        return payrollService.getEmployeePaychecksByPayrollId(id);
+    }
+
+    @PostMapping("/{id}/preview-payroll")
+    public List<EmployeePaycheck> generatePayroll(@PathVariable Integer id){
+        return payrollService.generateEmployeePaychecks(id);
+    }
+
+    @PostMapping("/{id}/process-payroll")
     public void processPayroll(@PathVariable Integer payrollPeriod){
         payrollService.processPayroll(payrollPeriod);
     }
 
-    @PostMapping("/{id}/generate")
-    public List<EmployeePaycheck> generatePayroll(@PathVariable Integer payrollPeriod){
-        return payrollService.generateEmployeePaychecks(payrollPeriod);
-    }
 }

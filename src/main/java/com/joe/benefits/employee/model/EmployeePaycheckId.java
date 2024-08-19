@@ -2,10 +2,10 @@ package com.joe.benefits.employee.model;
 
 public class EmployeePaycheckId {
     private Integer employeeId;
-    private Integer payrollId;
+    private Integer payPeriodId;
 
-    public EmployeePaycheckId(Integer employeeId, Integer payrollId) {
+    public EmployeePaycheckId(Integer employeeId, Integer payPeriodId) {
         this.employeeId = employeeId;
-        this.payrollId = payrollId;
+        this.payPeriodId = payPeriodId;
     }
 }

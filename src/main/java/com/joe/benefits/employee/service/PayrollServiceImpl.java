@@ -1,10 +1,8 @@
 package com.joe.benefits.employee.service;
 
+import com.joe.benefits.employee.exception.NotFoundException;
 import com.joe.benefits.employee.model.*;
-import com.joe.benefits.employee.repository.BenefitDiscountRepository;
-import com.joe.benefits.employee.repository.EmployeePaycheckRepository;
-import com.joe.benefits.employee.repository.EmployeeRepository;
-import com.joe.benefits.employee.repository.PayrollPeriodRepository;
+import com.joe.benefits.employee.repository.*;
 import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -29,12 +27,14 @@ public class PayrollServiceImpl implements PayrollService {
     private final EmployeeRepository employeeRepository;
     private final BenefitDiscountRepository benefitDiscountRepository;
     private final EmployeePaycheckRepository employeePaycheckRepository;
+    private final BenefitPackageRepository benefitPackageRepository;
 
-    public PayrollServiceImpl(PayrollPeriodRepository payrollPeriodRepository, EmployeeRepository employeeRepository, BenefitDiscountRepository benefitDiscountRepository, EmployeePaycheckRepository employeePaycheckRepository) {
+    public PayrollServiceImpl(PayrollPeriodRepository payrollPeriodRepository, EmployeeRepository employeeRepository, BenefitDiscountRepository benefitDiscountRepository, EmployeePaycheckRepository employeePaycheckRepository, BenefitPackageRepository benefitPackageRepository) {
         this.payrollPeriodRepository = payrollPeriodRepository;
         this.employeeRepository = employeeRepository;
         this.benefitDiscountRepository = benefitDiscountRepository;
         this.employeePaycheckRepository = employeePaycheckRepository;
+        this.benefitPackageRepository = benefitPackageRepository;
     }
 
     public Page<PayrollPeriod> findAll(final Pageable pageable) {
@@ -56,20 +56,58 @@ public class PayrollServiceImpl implements PayrollService {
         List<BenefitDiscount> benefitDiscountRepositoryByIsActive = benefitDiscountRepository.findByIsActive(true);
 
         employees.stream().forEach(employee -> {
-            EmployeePaycheck employeePaycheck = generateEmployeePaycheck(employee, benefitDiscountRepositoryByIsActive, payrollId);
+            EmployeePaycheck employeePaycheck = generateEmployeePaycheck(employee, employee.getBenefitPackage(), benefitDiscountRepositoryByIsActive, payrollId);
             employeePaychecks.add(employeePaycheck);
         });
 
         return employeePaycheckRepository.saveAll(employeePaychecks);
     }
 
-    private EmployeePaycheck generateEmployeePaycheck(Employee employee, List<BenefitDiscount> benefitDiscounts, Integer payrollId) {
-        // Assuming the first match will be ok - a real system would need to know how to determine the appropriate discount to apply when an
-        // employee or dependent meet multiple discount criteria
+    @Transactional
+    public EmployeePaycheck getEmployeePayPreview(Integer benefitId, Integer employeeId){
+        Optional<Employee> employees = employeeRepository.findById(employeeId);
+        if (employees.isEmpty()) {
+            throw new NotFoundException("Unable to find employee with id: " + employeeId);
+        }
+        Optional<BenefitPackage> benefitPackage = benefitPackageRepository.findById(benefitId);
+        if (benefitPackage.isEmpty()) {
+            throw new NotFoundException("Unable to find benefit with id: " + benefitId);
+        }
+        List<BenefitDiscount> benefitDiscountRepositoryByIsActive = benefitDiscountRepository.findByIsActive(true);
+
+        return generateEmployeePaycheck(employees.get(), benefitPackage.get(), benefitDiscountRepositoryByIsActive, benefitId);
+    }
+
+    @Override
+    public List<EmployeePaycheck> getEmployeePaychecksByPayrollId(Integer payrollId) {
+        return employeePaycheckRepository.findByPayPeriodId(payrollId);
+    }
+
+    @Override
+    @Transactional
+    public PayrollPeriod save(PayrollPeriod newPayrollPeriod) {
+        return payrollPeriodRepository.save(newPayrollPeriod);
+    }
+
+    private EmployeePaycheck generateEmployeePaycheck(Employee employee, BenefitPackage benefitPackage, List<BenefitDiscount> benefitDiscounts, Integer payrollId) {
+        // Assuming the first match on a discount will be ok - a real system would need to know how to determine the appropriate discount to apply when an
+        // employee or dependent meet multiple discount criteria as well as determine payroll type by payrollId rather than using hard coded values
+        return EmployeePaycheck.builder()
+                .employeeId(employee.getId())
+                .salary(employee.getSalary())
+                .benefitPackage(benefitPackage)
+                .total(calculateEmployeeTotal(employee, benefitDiscounts))
+                .payPeriodId(payrollId)
+                .status(PayrollStatus.PROCESSING)
+                .build();
+    }
+
+    private BigDecimal calculateEmployeeTotal(Employee employee, List<BenefitDiscount> benefitDiscounts) {
+        // Assuming the first match on a discount will be ok - a real system would need to know how to determine the appropriate discount to apply when an
+        // employee or dependent meet multiple discount criteria as well as determine payroll type by payrollId rather than using hard coded values
         BigDecimal employeeDeductions = calculateEmployeeDeduction(employee, benefitDiscounts);
         BigDecimal dependentDeductions = calculateDependentDeductions(employee.getDependents(), benefitDiscounts);
-
-        return EmployeePaycheck.builder().employeeId(employee.getId()).salary(employee.getSalary()).benefitPackage(employee.getBenefitPackage()).total(employee.getSalary().subtract(employeeDeductions).subtract(dependentDeductions)).payPeriodId(payrollId).status(PayrollStatus.PROCESSING).build();
+        return employee.getSalary().subtract(employeeDeductions).subtract(dependentDeductions);
     }
 
     private BigDecimal calculateDependentDeductions(List<Dependent> dependents, List<BenefitDiscount> benefitDiscounts) {
@@ -81,7 +119,7 @@ public class PayrollServiceImpl implements PayrollService {
             BigDecimal deduction = BigDecimal.valueOf(DEPENDENT_BENEFIT_COST_PER_PAY_PERIOD);
             for (BenefitDiscount benefitDiscount : benefitDiscounts) {
                 if (meetsDiscountCriteria(dependent, benefitDiscount)) {
-                    deduction = deduction.multiply(BigDecimal.valueOf( (double) (100 - benefitDiscount.getDiscountPercentage()) / 100));
+                    deduction = deduction.multiply(BigDecimal.valueOf((double) (100 - benefitDiscount.getDiscountPercentage()) / 100));
                     break;
                 }
             }

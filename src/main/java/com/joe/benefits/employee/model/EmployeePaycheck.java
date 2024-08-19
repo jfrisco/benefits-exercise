@@ -7,8 +7,9 @@ import lombok.Data;
 import java.math.BigDecimal;
 
 @Data
-@Builder
 @Table(name = "EMPLOYEE_PAYCHECK")
+@Entity
+@Builder
 @IdClass(EmployeePaycheckId.class)
 public class EmployeePaycheck {
     @Id
@@ -28,6 +29,17 @@ public class EmployeePaycheck {
     @Enumerated(EnumType.STRING)
     private PayrollStatus status;
 
+    public EmployeePaycheck() {
+
+    }
 
 
+    public EmployeePaycheck(Integer employeeId, Integer payPeriodId, BenefitPackage benefitPackage, BigDecimal total, BigDecimal salary, PayrollStatus status) {
+        this.employeeId = employeeId;
+        this.payPeriodId = payPeriodId;
+        this.benefitPackage = benefitPackage;
+        this.total = total;
+        this.salary = salary;
+        this.status = status;
+    }
 }
